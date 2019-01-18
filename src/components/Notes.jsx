@@ -1,15 +1,17 @@
 import React, {Component} from 'react';
 import Note from "./Note";
+import axios from 'axios'
 
 class Notes extends Component {
     state = {
+        userName: `me`,
         myNotes: []
     };
 
     constructor() {
         super();
 
-        const note = [{key: 1, title: 'My First Note', text: 'My note text'}];
+        const note = [{noteId: 1, title: 'My First Note', text: 'My note text'}];
         this.state.myNotes = note;
     }
 
@@ -26,9 +28,10 @@ class Notes extends Component {
                         {
                             this.state.myNotes.map(note => (
 
-                                <div key={note.key}>
-                                    <Note key={note.key}
-                                    noteTitle={note.title}/>
+                                <div key={note.noteId}>
+                                    <Note key={note.noteId}
+                                          note={note}
+                                    onNoteDelete={this.handleNoteDelete}/>
                                 </div>
                             ))
                         }
@@ -37,6 +40,19 @@ class Notes extends Component {
                 </div>
             </div>
         );
+    }
+
+    componentDidMount() {
+        const uri = `https://us-central1-pka-forms-fef14.cloudfunctions.net/getNotes?userName=${this.state.userName}`;
+        axios.get(uri)
+            .then(noteData => {
+                console.log('Note Get Data', noteData);
+                this.setState({...this.state, myNotes: noteData.data})
+            })
+            .catch(error => {
+                console.log('**ERROR** on Note get ', error);
+            })
+
     }
 
 }
